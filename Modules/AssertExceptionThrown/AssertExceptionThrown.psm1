@@ -20,7 +20,7 @@ any arguments, in curly braces and pipe it to Assert-ExceptionThrown.
 .PARAMETER FunctionScriptBlock
 The function under test, including any arguments, wrapped in curly braces to form a scriptblock. 
 
-.PARAMETER ExpectedExceptionTypeName
+.PARAMETER WithTypeName
 The type name of the exception that is expected to be thrown by the function under test.  
 
 By default this is the short name of the exception class, without a namespace.  If the 
@@ -28,31 +28,31 @@ By default this is the short name of the exception class, without a namespace.  
 must be specified.  The comparison between the expected and actual exception class names is 
 case insensitive.
 
-.PARAMETER ExpectedExceptionMessage
+.PARAMETER WithMessage
 All or part of the exception message that is expected when the function under test is run. 
  
-The test is effectively "Actual exception message must contain ExpectedExceptionMessage".  The 
+The test is effectively "Actual exception message must contain WithMessage".  The 
 comparison between the expected and actual exception messages is case insensitive.
 
 .PARAMETER UseFullTypeName
-A switch parameter that affects the behaviour of the ExpectedExceptionTypeName comparison.  
+A switch parameter that affects the behaviour of the WithTypeName comparison.  
 
 If UseFullTypeName is not set then the short name of the actual exception class, excluding any 
-namespace, is compared against ExpectedExceptionTypeName.  If UseFullTypeName is set then the 
+namespace, is compared against WithTypeName.  If UseFullTypeName is set then the 
 full name of the actual exception class, including namespace, is compared against 
-ExpectedExceptionTypeName.
+WithTypeName.
 
-If ExpectedExceptionTypeName is not specified or is $Null or is an empty or blank string then 
+If WithTypeName is not specified or is $Null or is an empty or blank string then 
 UseFullTypeName is ignored.
 
 .PARAMETER Not
 A switch parameter that inverts the test when set.  
 
-The effect of the Not parameter depends on whether ExpectedExceptionTypeName or 
-ExpectedExceptionMessage are set.  If neither ExpectedExceptionTypeName nor 
-ExpectedExceptionMessage are set then Not means "Function should not throw any exception."  
+The effect of the Not parameter depends on whether WithTypeName or 
+WithMessage are set.  If neither WithTypeName nor 
+WithMessage are set then Not means "Function should not throw any exception."  
 
-If either ExpectedExceptionTypeName and/or ExpectedExceptionMessage are set then Not means 
+If either WithTypeName and/or WithMessage are set then Not means 
 "Function should not throw an exception with the specified class name and/or message."  This 
 means the test will pass if no exception is thrown, or if an exception is thrown which does not 
 have the specified class name and/or message.
@@ -61,7 +61,7 @@ have the specified class name and/or message.
 Test that a function taking two arguments throws an exception with a specified message
 
 { MyFunctionWithTwoArgs -Key MyKey -Value 10 } | 
-    Assert-ExceptionThrown -ExpectedExceptionMessage 'Value was of type int32, expected string'
+    Assert-ExceptionThrown -WithMessage 'Value was of type int32, expected string'
 
 The name of the function under test is MyFunctionWithTwoArgs.  The test will only pass if 
 MyFunctionWithTwoArgs, with the specified arguments, throws an exception with a message 
@@ -71,7 +71,7 @@ that contains the specified text.
 Test that a function taking no arguments throws an exception of a specified type
 
 { MyFunction } | 
-    Assert-ExceptionThrown -ExpectedExceptionTypeName ArgumentException
+    Assert-ExceptionThrown -WithTypeName ArgumentException
 
 The test will only pass if MyFunction throws an ArgumentException.
 
@@ -79,7 +79,7 @@ The test will only pass if MyFunction throws an ArgumentException.
 Test that a function throws an exception with the type name specified in full
 
 { MyFunction } | 
-    Assert-ExceptionThrown -ExpectedExceptionTypeName System.ArgumentException `
+    Assert-ExceptionThrown -WithTypeName System.ArgumentException `
                             -UseFullTypeName
 
 The test will only pass if MyFunction throws a System.ArgumentException.
@@ -97,7 +97,7 @@ any exception.
 Test that a function does not throw an exception with a specified message
 
 { MyFunctionWithTwoArgs -Key MyKey -Value 10 } | 
-    Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'Value was of type int32, expected string'
+    Assert-ExceptionThrown -Not -WithMessage 'Value was of type int32, expected string'
 
 The test will fail if MyFunctionWithTwoArgs, with the specified arguments, throws an exception 
 with a message that contains the specified text.  It will pass if MyFunctionWithTwoArgs does not 
@@ -107,7 +107,7 @@ throw an exception, or if it throws an exception with a different message.
 Test that a function does not throw an exception of a specified type
 
 { MyFunction } | 
-    Assert-ExceptionThrown -Not -ExpectedExceptionTypeName ArgumentException
+    Assert-ExceptionThrown -Not -WithTypeName ArgumentException
 
 The test will fail if MyFunction throws an ArgumentException.  It will pass if MyFunction does 
 not throw an exception, or if it throws an exception of a different type.
@@ -123,8 +123,8 @@ function Assert-ExceptionThrown
     ]
     [scriptblock]$FunctionScriptBlock, 
 
-    [string]$ExpectedExceptionTypeName,
-    [string]$ExpectedExceptionMessage, 
+    [string]$WithTypeName,
+    [string]$WithMessage, 
     [switch]$UseFullTypeName, 
 
     [switch]$Not
@@ -145,8 +145,8 @@ function Assert-ExceptionThrown
         catch
         {
             $errorMessages = Private_GetExceptionError -Exception $_.Exception `
-                -ExpectedExceptionTypeName $ExpectedExceptionTypeName `
-                -ExpectedExceptionMessage $ExpectedExceptionMessage `
+                -WithTypeName $WithTypeName `
+                -WithMessage $WithMessage `
                 -UseFullTypeName:$UseFullTypeName -Not:$Not
                 
             if ($errorMessages.Count -gt 0)
@@ -159,8 +159,8 @@ function Assert-ExceptionThrown
 
         # Will only get here if no exception was thrown by the function under test...
         
-        if ([string]::IsNullOrWhiteSpace($ExpectedExceptionTypeName) -and 
-            [string]::IsNullOrWhiteSpace($ExpectedExceptionMessage))
+        if ([string]::IsNullOrWhiteSpace($WithTypeName) -and 
+            [string]::IsNullOrWhiteSpace($WithMessage))
         {
             # No expectations were specified for the exception type or the exception message.  
             # So in this case -Not means "Should not throw any exception."
@@ -184,16 +184,16 @@ function Assert-ExceptionThrown
 
         $errorMessages = @()
 
-        if (-not [string]::IsNullOrWhiteSpace($ExpectedExceptionTypeName))
+        if (-not [string]::IsNullOrWhiteSpace($WithTypeName))
         {
             $errorMessages += 
-                "Expected $ExpectedExceptionTypeName to be thrown but it wasn't."
+                "Expected $WithTypeName to be thrown but it wasn't."
         }
 
-        if (-not [string]::IsNullOrWhiteSpace($ExpectedExceptionMessage))
+        if (-not [string]::IsNullOrWhiteSpace($WithMessage))
         {
             $errorMessages += 
-                "Expected exception with message '$ExpectedExceptionMessage' to be thrown but it wasn't."
+                "Expected exception with message '$WithMessage' to be thrown but it wasn't."
         }
 
         if ($errorMessages.Count -gt 0)
@@ -215,15 +215,15 @@ function Private_GetExceptionError
 (
     [Exception]$Exception,
 
-    [string]$ExpectedExceptionTypeName,
-    [string]$ExpectedExceptionMessage, 
+    [string]$WithTypeName,
+    [string]$WithMessage, 
     [switch]$UseFullTypeName, 
 
     [switch]$Not
 )
 {
-    if ([string]::IsNullOrWhiteSpace($ExpectedExceptionTypeName) -and 
-        [string]::IsNullOrWhiteSpace($ExpectedExceptionMessage))
+    if ([string]::IsNullOrWhiteSpace($WithTypeName) -and 
+        [string]::IsNullOrWhiteSpace($WithMessage))
     {
         # No expectations were specified for the exception type or the exception message.  
         # So in this case -Not means "Should not throw any exception."
@@ -242,7 +242,7 @@ function Private_GetExceptionError
     $exceptionTypeMatched = $True
     $exceptionMessageMatched = $True
 
-    if (-not [string]::IsNullOrWhiteSpace($ExpectedExceptionTypeName))
+    if (-not [string]::IsNullOrWhiteSpace($WithTypeName))
     {
         $actualExceptionTypeName = $Exception.GetType().Name
         if ($UseFullTypeName)
@@ -250,33 +250,33 @@ function Private_GetExceptionError
             $actualExceptionTypeName = $Exception.GetType().FullName
         }
         # -ieq is case insensitive equals.
-        $exceptionTypeMatched = ($actualExceptionTypeName -ieq $ExpectedExceptionTypeName.Trim())
+        $exceptionTypeMatched = ($actualExceptionTypeName -ieq $WithTypeName.Trim())
         if ($Not -and $exceptionTypeMatched)
         {
             $errorMessages += `
-                "Expected an exception of a different type than $ExpectedExceptionTypeName but exception thrown was of that type."
+                "Expected an exception of a different type than $WithTypeName but exception thrown was of that type."
         }
         elseif (-not $Not -and -not $exceptionTypeMatched)
         {
             $errorMessages += `
-                "Expected $ExpectedExceptionTypeName but exception thrown was $actualExceptionTypeName."
+                "Expected $WithTypeName but exception thrown was $actualExceptionTypeName."
         }
 
     }
 
-    if (-not [string]::IsNullOrWhiteSpace($ExpectedExceptionMessage))
+    if (-not [string]::IsNullOrWhiteSpace($WithMessage))
     {
         # -ilike is case insensitive like.
-        $exceptionMessageMatched = ($Exception.Message -ilike "*$ExpectedExceptionMessage*")
+        $exceptionMessageMatched = ($Exception.Message -ilike "*$WithMessage*")
         if ($Not -and $exceptionMessageMatched)
         {
             $errorMessages += `
-                "Expected exception message different than '$ExpectedExceptionMessage' but exception thrown had that message."
+                "Expected exception message different than '$WithMessage' but exception thrown had that message."
         }
         elseif (-not $Not -and -not $exceptionMessageMatched)
         {
             $errorMessages += `
-                "Expected exception message '$ExpectedExceptionMessage' but actual exception message was '$($Exception.Message)'."
+                "Expected exception message '$WithMessage' but actual exception message was '$($Exception.Message)'."
         }
     }
 

@@ -116,7 +116,7 @@ Describe 'Assert-ExceptionThrown' {
         try
         {
             { NoArgsNoException } | 
-                Assert-ExceptionThrown -ExpectedExceptionMessage 'the message'
+                Assert-ExceptionThrown -WithMessage 'the message'
         }
         catch
         {
@@ -134,7 +134,7 @@ Describe 'Assert-ExceptionThrown' {
         try
         {
             { NoArgsNoException } | 
-                Assert-ExceptionThrown -ExpectedExceptionTypeName ArgumentException
+                Assert-ExceptionThrown -WithTypeName ArgumentException
         }
         catch
         {
@@ -167,19 +167,19 @@ Describe 'Assert-ExceptionThrown' {
     
     It 'passes when function under test throws exception with specified message' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -ExpectedExceptionMessage 'the message'
+            Assert-ExceptionThrown -WithMessage 'the message'
     }
     
     It 'passes when function under test throws exception with specified type name' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -ExpectedExceptionTypeName ArgumentException
+            Assert-ExceptionThrown -WithTypeName ArgumentException
     }
     
     It 'fails when function under test throws exception with message different from expected' {
         try
         {
             { OneArgException -ExceptionMessage 'one arg message' } | 
-                Assert-ExceptionThrown -ExpectedExceptionMessage 'expected text'
+                Assert-ExceptionThrown -WithMessage 'expected text'
         }
         catch
         {
@@ -197,7 +197,7 @@ Describe 'Assert-ExceptionThrown' {
         try
         {
             { NoArgsException } | 
-                Assert-ExceptionThrown -ExpectedExceptionTypeName WrongException
+                Assert-ExceptionThrown -WithTypeName WrongException
         }
         catch
         {
@@ -214,8 +214,8 @@ Describe 'Assert-ExceptionThrown' {
         try
         {
             { OneArgException -ExceptionMessage 'one arg message' } | 
-                Assert-ExceptionThrown -ExpectedExceptionMessage 'expected text' `
-                                        -ExpectedExceptionTypeName ArgumentException
+                Assert-ExceptionThrown -WithMessage 'expected text' `
+                                        -WithTypeName ArgumentException
         }
         catch
         {
@@ -233,8 +233,8 @@ Describe 'Assert-ExceptionThrown' {
         try
         {
             { OneArgException -ExceptionMessage 'one arg message' } | 
-                Assert-ExceptionThrown -ExpectedExceptionMessage 'one arg message' `
-                                        -ExpectedExceptionTypeName WrongException
+                Assert-ExceptionThrown -WithMessage 'one arg message' `
+                                        -WithTypeName WrongException
         }
         catch
         {
@@ -249,15 +249,15 @@ Describe 'Assert-ExceptionThrown' {
     
     It 'passes when both exception message and type name are specified and function under test throws exception matching both the expected message and type' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -ExpectedExceptionMessage 'the message' `
-                                    -ExpectedExceptionTypeName ArgumentException
+            Assert-ExceptionThrown -WithMessage 'the message' `
+                                    -WithTypeName ArgumentException
     }
     
     It 'fails when -UseFullTypeName switch is specified and the full type name of the expected exception is not supplied' {
         try
         {
             { NoArgsException } | 
-                Assert-ExceptionThrown -ExpectedExceptionTypeName ArgumentException -UseFullTypeName
+                Assert-ExceptionThrown -WithTypeName ArgumentException -UseFullTypeName
         }
         catch
         {
@@ -272,7 +272,7 @@ Describe 'Assert-ExceptionThrown' {
     
     It 'passes when -UseFullTypeName switch is specified and the full type name of the expected exception is supplied' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -ExpectedExceptionTypeName System.ArgumentException -UseFullTypeName
+            Assert-ExceptionThrown -WithTypeName System.ArgumentException -UseFullTypeName
     }
     
     It 'fails when -Not switch is specified with no exception expectations and the function under test throws an exception' {
@@ -301,7 +301,7 @@ Describe 'Assert-ExceptionThrown' {
         try
         {
             { NoArgsException } | 
-                Assert-ExceptionThrown -Not -ExpectedExceptionTypeName ArgumentException
+                Assert-ExceptionThrown -Not -WithTypeName ArgumentException
         }
         catch
         {
@@ -316,24 +316,24 @@ Describe 'Assert-ExceptionThrown' {
     
     It 'passes when -Not switch is specified with expected exception type name and the function under test throws exception of different type' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -Not -ExpectedExceptionTypeName DifferentException
+            Assert-ExceptionThrown -Not -WithTypeName DifferentException
     }
     
     It 'passes when -Not switch is specified with expected exception type name and the function under test does not throws exception' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -Not -ExpectedExceptionTypeName DifferentException
+            Assert-ExceptionThrown -Not -WithTypeName DifferentException
     }
     
     It 'passes when -Not and -UseFullTypeName switches are specified and the full type name of the expected exception is not supplied' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -Not -ExpectedExceptionTypeName ArgumentException -UseFullTypeName
+            Assert-ExceptionThrown -Not -WithTypeName ArgumentException -UseFullTypeName
     }
     
     It 'fails when -Not and -UseFullTypeName switches are specified and the full type name of the expected exception is supplied' {
         try
         {
             { NoArgsException } | 
-                Assert-ExceptionThrown -Not -ExpectedExceptionTypeName System.ArgumentException -UseFullTypeName
+                Assert-ExceptionThrown -Not -WithTypeName System.ArgumentException -UseFullTypeName
         }
         catch
         {
@@ -350,7 +350,7 @@ Describe 'Assert-ExceptionThrown' {
         try
         {
             { NoArgsException } | 
-                Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'the message'
+                Assert-ExceptionThrown -Not -WithMessage 'the message'
         }
         catch
         {
@@ -366,20 +366,20 @@ Describe 'Assert-ExceptionThrown' {
     
     It 'passes when -Not switch is specified with expected exception message and the function under test throws exception with different message' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'different message'
+            Assert-ExceptionThrown -Not -WithMessage 'different message'
     }
     
     It 'passes when -Not switch is specified with expected exception message and the function under test does not throw exception' {
         { NoArgsNoException } | 
-            Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'the message'
+            Assert-ExceptionThrown -Not -WithMessage 'the message'
     }
     
     It 'fails when -Not switch is specified with both expected exception message and type name and both expectations are met' {
         try
         {
             { NoArgsException } | 
-                Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'the message' `
-                                            -ExpectedExceptionTypeName ArgumentException
+                Assert-ExceptionThrown -Not -WithMessage 'the message' `
+                                            -WithTypeName ArgumentException
         }
         catch
         {
@@ -397,55 +397,55 @@ Describe 'Assert-ExceptionThrown' {
     
     It 'passes when -Not switch is specified with both expected exception message and type name, and actual exception type is different' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'the message' `
-                                        -ExpectedExceptionTypeName DifferentException
+            Assert-ExceptionThrown -Not -WithMessage 'the message' `
+                                        -WithTypeName DifferentException
     }
     
     It 'passes when -Not switch is specified with both expected exception message and type name, and actual exception message is different' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'different message' `
-                                        -ExpectedExceptionTypeName ArgumentException
+            Assert-ExceptionThrown -Not -WithMessage 'different message' `
+                                        -WithTypeName ArgumentException
     }
     
     It 'passes when -Not switch is specified with both expected exception message and type name, and actual exception message and type are different' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'different message' `
-                                        -ExpectedExceptionTypeName DifferentException
+            Assert-ExceptionThrown -Not -WithMessage 'different message' `
+                                        -WithTypeName DifferentException
     }
     
     It 'passes when -Not switch is specified with both expected exception message and type name, and no exception is thrown' {
         { NoArgsNoException } | 
-            Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'the message' `
-                                        -ExpectedExceptionTypeName ArgumentException
+            Assert-ExceptionThrown -Not -WithMessage 'the message' `
+                                        -WithTypeName ArgumentException
     }
     
     It 'handles function under test with no arguments' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -ExpectedExceptionMessage 'the message'
+            Assert-ExceptionThrown -WithMessage 'the message'
     }
     
     It 'handles function under test with one argument' {
         { OneArgException -ExceptionMessage 'one arg message' } | 
-            Assert-ExceptionThrown -ExpectedExceptionMessage 'one arg message'
+            Assert-ExceptionThrown -WithMessage 'one arg message'
     }
     
     It 'handles function under test with two arguments' {
         { TwoArgsException -Key MyKey -Value MyValue } | 
-            Assert-ExceptionThrown -ExpectedExceptionMessage 'MyKey: MyValue'
+            Assert-ExceptionThrown -WithMessage 'MyKey: MyValue'
     }
     
     It 'handles function under test with two arguments of different types' {
         { TwoArgsDifferentTypes -Key MyKey -Value 10 } | 
-            Assert-ExceptionThrown -ExpectedExceptionMessage 'MyKey: 10'
+            Assert-ExceptionThrown -WithMessage 'MyKey: 10'
     }
     
     It 'handles function under test with switch parameter not set' {
         { TwoArgsIncludingSwitch -Message 'my message' } | 
-            Assert-ExceptionThrown -ExpectedExceptionMessage 'my message'
+            Assert-ExceptionThrown -WithMessage 'my message'
     }
     
     It 'handles function under test with switch parameter set' {
         { TwoArgsIncludingSwitch -Message 'my message' -AddExtraText } | 
-            Assert-ExceptionThrown -ExpectedExceptionMessage 'my message; extra text'
+            Assert-ExceptionThrown -WithMessage 'my message; extra text'
     }
 }

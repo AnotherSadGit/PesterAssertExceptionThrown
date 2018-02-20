@@ -8,6 +8,12 @@ only check the exception message, not the type of exception.  This function can 
 exception message and type.
 
 .NOTES
+File Name:	AssertExceptionThrown.psm1
+Author:		Simon Elms
+Copyright:	(c) 2018 Simon Elms
+Requires:	PowerShell 5 (may work on earlier versions but untested)
+			Pester 4 (may work on earlier versions but untested)
+
 Usage is similar to that for Pester "Should -Throw": Wrap the function under test, along with 
 any arguments, in curly braces and pipe it to Assert-ExceptionThrown.
 
@@ -105,6 +111,9 @@ Test that a function does not throw an exception of a specified type
 
 The test will fail if MyFunction throws an ArgumentException.  It will pass if MyFunction does 
 not throw an exception, or if it throws an exception of a different type.
+
+.LINK
+https://github.com/AnotherSadGit/PesterAssertExceptionThrown
 #>
 function Assert-ExceptionThrown 
 (
@@ -135,7 +144,7 @@ function Assert-ExceptionThrown
         }
         catch
         {
-            $errorMessages = Get-ExceptionError -Exception $_.Exception `
+            $errorMessages = Private_GetExceptionError -Exception $_.Exception `
                 -ExpectedExceptionTypeName $ExpectedExceptionTypeName `
                 -ExpectedExceptionMessage $ExpectedExceptionMessage `
                 -UseFullTypeName:$UseFullTypeName -Not:$Not
@@ -202,7 +211,7 @@ Gets an array of error messages where an exception does not meet expectations.
 Gets an array of error messages where an exception does not meet expectations.  If all 
 expectations are met the array will be empty.
 #>
-function Get-ExceptionError
+function Private_GetExceptionError
 (
     [Exception]$Exception,
 
@@ -294,3 +303,8 @@ function Get-ExceptionError
         }
     }
 }
+
+# Only export public functions.  To simplify the exporting of public functions but not private 
+# ones public functions must follow the standard PowerShell naming convention, 
+# "<verb>-<singular noun>", while private functions must not contain a dash, "-".
+Export-ModuleMember -Function *-*

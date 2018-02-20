@@ -11,7 +11,23 @@ Assert-ExceptionThrown is a function wrapper that tests the exceptions a functio
 Assert-ExceptionThrown can test both exception message and type.
 #>
 
-. (Join-Path $PSScriptRoot ..\AssertExceptionThrown.ps1 -Resolve)
+# PowerShell allows multiple modules of the same name to be imported from different locations.  
+# This would confuse Pester.  So, to be sure there are not multiple AssertExceptionThrown modules 
+# imported, # remove all AssertExceptionThrown modules and re-import only one.
+Get-Module AssertExceptionThrown | Remove-Module -Force
+# Use $PSScriptRoot so this script will always import the AssertExceptionThrown module in the 
+# Modules folder adjacent to the folder containing this script, regardless of the location that 
+# Pester is invoked from:
+#                                     {parent folder}
+#                                             |
+#                   -----------------------------------------------------
+#                   |                                                   |
+#     {folder containing this script}                                Modules folder
+#                   \                                                   |
+#                    ------------------> imports                     AssertExceptionThrown module folder
+#                                                \                      |
+#                                                 -----------------> AssertExceptionThrown.psm1 module script
+Import-Module (Join-Path $PSScriptRoot ..\Modules\AssertExceptionThrown\AssertExceptionThrown.psm1 -Resolve) -Force
 
 <#
 .SYNOPSIS

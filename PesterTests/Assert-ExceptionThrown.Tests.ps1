@@ -40,6 +40,15 @@ function NoArgsException
 
 <#
 .SYNOPSIS
+Test function with no arguments that throws an exception with a long multi-part name.
+#>
+function NoArgsMultipartException
+{
+    throw [System.Management.Automation.ActionPreferenceStopException] "This is the message"
+}
+
+<#
+.SYNOPSIS
 Test function with no arguments that does not throw an exception.
 #>
 function NoArgsNoException
@@ -170,11 +179,11 @@ Describe 'Assert-ExceptionThrown' {
             Assert-ExceptionThrown -WithMessage 'the message'
     }
     
-    It 'passes when function under test throws exception with specified type name' {
+    It 'passes when function under test throws exception with a specified type name' {
         { NoArgsException } | 
-            Assert-ExceptionThrown -WithTypeName ArgumentException
+            Assert-ExceptionThrown -WithTypeName System.ArgumentException
     }
-    
+        
     It 'fails when function under test throws exception with message different from expected' {
         try
         {
@@ -201,7 +210,7 @@ Describe 'Assert-ExceptionThrown' {
         }
         catch
         {
-            $_.Exception.Message | Should -Be 'Expected WrongException but exception thrown was ArgumentException.'
+            $_.Exception.Message | Should -Be 'Expected WrongException but exception thrown was System.ArgumentException.'
             return
         }
 
@@ -238,7 +247,7 @@ Describe 'Assert-ExceptionThrown' {
         }
         catch
         {
-            $_.Exception.Message | Should -Be 'Expected WrongException but exception thrown was ArgumentException.'
+            $_.Exception.Message | Should -Be 'Expected WrongException but exception thrown was System.ArgumentException.'
             return
         }
 
@@ -253,15 +262,30 @@ Describe 'Assert-ExceptionThrown' {
                                     -WithTypeName ArgumentException
     }
     
-    It 'fails when -UseFullTypeName switch is specified and the full type name of the expected exception is not supplied' {
+    It 'passes when a full type name is specified which matches the exception thrown' {
+        { NoArgsMultipartException } | 
+            Assert-ExceptionThrown -WithTypeName System.Management.Automation.ActionPreferenceStopException
+    }
+    
+    It 'passes when expected type name misses one or more namespaces at the start of the exception name' {
+        { NoArgsMultipartException } | 
+            Assert-ExceptionThrown -WithTypeName Automation.ActionPreferenceStopException
+    }
+    
+    It 'passes when a short type name is specified which matches the exception thrown' {
+        { NoArgsMultipartException } | 
+            Assert-ExceptionThrown -WithTypeName ActionPreferenceStopException
+    }
+    
+    It 'fails when expected type name starts with a partial namespace' {
         try
         {
-            { NoArgsException } | 
-                Assert-ExceptionThrown -WithTypeName ArgumentException -UseFullTypeName
+            { NoArgsMultipartException } | 
+                Assert-ExceptionThrown -WithTypeName ment.Automation.ActionPreferenceStopException
         }
         catch
         {
-            $_.Exception.Message | Should -Be 'Expected ArgumentException but exception thrown was System.ArgumentException.'
+            $_.Exception.Message | Should -Be 'Expected ment.Automation.ActionPreferenceStopException but exception thrown was System.Management.Automation.ActionPreferenceStopException.'
             return
         }
 
@@ -270,9 +294,21 @@ Describe 'Assert-ExceptionThrown' {
         throw [Exception] 'Expected Assert-ExceptionThrown to throw exception but it did not.'
     }
     
-    It 'passes when -UseFullTypeName switch is specified and the full type name of the expected exception is supplied' {
-        { NoArgsException } | 
-            Assert-ExceptionThrown -WithTypeName System.ArgumentException -UseFullTypeName
+    It 'fails when expected type name ends with a partial class name' {
+        try
+        {
+            { NoArgsMultipartException } | 
+                Assert-ExceptionThrown -WithTypeName Management.Automation.Action
+        }
+        catch
+        {
+            $_.Exception.Message | Should -Be 'Expected Management.Automation.Action but exception thrown was System.Management.Automation.ActionPreferenceStopException.'
+            return
+        }
+
+        # Should not reach here because expect exception to be thrown and caught...
+
+        throw [Exception] 'Expected Assert-ExceptionThrown to throw exception but it did not.'
     }
     
     It 'fails when -Not switch is specified with no exception expectations and the function under test throws an exception' {
@@ -295,55 +331,6 @@ Describe 'Assert-ExceptionThrown' {
     It 'passes when -Not switch is specified with no exception expectations and the function under test does not throw an exception' {
         { NoArgsNoException } | 
             Assert-ExceptionThrown -Not
-    }
-    
-    It 'fails when -Not switch is specified with expected exception type name and the function under test throws exception of that type' {
-        try
-        {
-            { NoArgsException } | 
-                Assert-ExceptionThrown -Not -WithTypeName ArgumentException
-        }
-        catch
-        {
-            $_.Exception.Message | Should -Be 'Expected an exception of a different type than ArgumentException but exception thrown was of that type.'
-            return
-        }
-
-        # Should not reach here because expect exception to be thrown and caught...
-
-        throw [Exception] 'Expected Assert-ExceptionThrown to throw exception but it did not.'
-    }
-    
-    It 'passes when -Not switch is specified with expected exception type name and the function under test throws exception of different type' {
-        { NoArgsException } | 
-            Assert-ExceptionThrown -Not -WithTypeName DifferentException
-    }
-    
-    It 'passes when -Not switch is specified with expected exception type name and the function under test does not throws exception' {
-        { NoArgsException } | 
-            Assert-ExceptionThrown -Not -WithTypeName DifferentException
-    }
-    
-    It 'passes when -Not and -UseFullTypeName switches are specified and the full type name of the expected exception is not supplied' {
-        { NoArgsException } | 
-            Assert-ExceptionThrown -Not -WithTypeName ArgumentException -UseFullTypeName
-    }
-    
-    It 'fails when -Not and -UseFullTypeName switches are specified and the full type name of the expected exception is supplied' {
-        try
-        {
-            { NoArgsException } | 
-                Assert-ExceptionThrown -Not -WithTypeName System.ArgumentException -UseFullTypeName
-        }
-        catch
-        {
-            $_.Exception.Message | Should -Be 'Expected an exception of a different type than System.ArgumentException but exception thrown was of that type.'
-            return
-        }
-
-        # Should not reach here because expect exception to be thrown and caught...
-
-        throw [Exception] 'Expected Assert-ExceptionThrown to throw exception but it did not.'
     }
     
     It 'fails when -Not switch is specified with expected exception message and the function under test throws exception with the same message' {
@@ -374,6 +361,33 @@ Describe 'Assert-ExceptionThrown' {
             Assert-ExceptionThrown -Not -WithMessage 'the message'
     }
     
+    It 'fails when -Not switch is specified with expected exception type name and the function under test throws exception of that type' {
+        try
+        {
+            { NoArgsException } | 
+                Assert-ExceptionThrown -Not -WithTypeName ArgumentException
+        }
+        catch
+        {
+            $_.Exception.Message | Should -Be 'Expected an exception of a different type than ArgumentException but exception thrown was of that type.'
+            return
+        }
+
+        # Should not reach here because expect exception to be thrown and caught...
+
+        throw [Exception] 'Expected Assert-ExceptionThrown to throw exception but it did not.'
+    }
+    
+    It 'passes when -Not switch is specified with expected exception type name and the function under test throws exception of different type' {
+        { NoArgsException } | 
+            Assert-ExceptionThrown -Not -WithTypeName DifferentException
+    }
+    
+    It 'passes when -Not switch is specified with expected exception type name and the function under test does not throws exception' {
+        { NoArgsException } | 
+            Assert-ExceptionThrown -Not -WithTypeName DifferentException
+    }
+    
     It 'fails when -Not switch is specified with both expected exception message and type name and both expectations are met' {
         try
         {
@@ -395,16 +409,16 @@ Describe 'Assert-ExceptionThrown' {
         throw [Exception] 'Expected Assert-ExceptionThrown to throw exception but it did not.'
     }
     
-    It 'passes when -Not switch is specified with both expected exception message and type name, and actual exception type is different' {
-        { NoArgsException } | 
-            Assert-ExceptionThrown -Not -WithMessage 'the message' `
-                                        -WithTypeName DifferentException
-    }
-    
     It 'passes when -Not switch is specified with both expected exception message and type name, and actual exception message is different' {
         { NoArgsException } | 
             Assert-ExceptionThrown -Not -WithMessage 'different message' `
                                         -WithTypeName ArgumentException
+    }
+    
+    It 'passes when -Not switch is specified with both expected exception message and type name, and actual exception type is different' {
+        { NoArgsException } | 
+            Assert-ExceptionThrown -Not -WithMessage 'the message' `
+                                        -WithTypeName DifferentException
     }
     
     It 'passes when -Not switch is specified with both expected exception message and type name, and actual exception message and type are different' {

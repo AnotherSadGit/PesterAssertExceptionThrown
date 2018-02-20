@@ -18,15 +18,29 @@ Usage is similar to that for Pester "Should -Throw": Wrap the function under tes
 any arguments, in curly braces and pipe it to Assert-ExceptionThrown.
 
 .PARAMETER FunctionScriptBlock
-The function under test, including any arguments, wrapped in curly braces to form a scriptblock. 
+A call to the function under test, including any arguments, wrapped in curly braces to form a 
+scriptblock. 
 
 .PARAMETER WithTypeName
 The type name of the exception that is expected to be thrown by the function under test.  
 
-By default this is the short name of the exception class, without a namespace.  If the 
--UseFullTypeName switch is set then the full name of the exception class, including namespace, 
-must be specified.  The comparison between the expected and actual exception class names is 
-case insensitive.
+The test passes if the specified -WithTypeName matches the end of the full type name of the 
+exception that is thrown.  This allows leading namespaces to be left out of the expected type 
+name.  
+
+So, for example, if the function under test throws a 
+System.Management.Automation.ActionPreferenceStopException, 
+the following will pass:
+    -WithTypeName 'System.Management.Automation.ActionPreferenceStopException' 
+    -WithTypeName 'Management.Automation.ActionPreferenceStopException' 
+    -WithTypeName 'Automation.ActionPreferenceStopException'
+    -WithTypeName 'ActionPreferenceStopException'
+
+The test will fail if truncated namespaces or class names are specified.  For example, the 
+following will fail:
+    -WithTypeName 'mation.ActionPreferenceStopException' (truncated namespace 'Automation')
+    -WithTypeName 'System.Management.Automation.ActionPref' (truncated class name 
+                                                            'ActionPreferenceStopException').
 
 .PARAMETER WithMessage
 All or part of the exception message that is expected when the function under test is run. 
@@ -34,25 +48,14 @@ All or part of the exception message that is expected when the function under te
 The test is effectively "Actual exception message must contain WithMessage".  The 
 comparison between the expected and actual exception messages is case insensitive.
 
-.PARAMETER UseFullTypeName
-A switch parameter that affects the behaviour of the WithTypeName comparison.  
-
-If UseFullTypeName is not set then the short name of the actual exception class, excluding any 
-namespace, is compared against WithTypeName.  If UseFullTypeName is set then the 
-full name of the actual exception class, including namespace, is compared against 
-WithTypeName.
-
-If WithTypeName is not specified or is $Null or is an empty or blank string then 
-UseFullTypeName is ignored.
-
 .PARAMETER Not
 A switch parameter that inverts the test when set.  
 
-The effect of the Not parameter depends on whether WithTypeName or 
-WithMessage are set.  If neither WithTypeName nor 
-WithMessage are set then Not means "Function should not throw any exception."  
+The effect of the -Not parameter depends on whether -WithTypeName or 
+-WithMessage are set.  If neither -WithTypeName nor 
+-WithMessage are set then -Not means "Function should not throw any exception."  
 
-If either WithTypeName and/or WithMessage are set then Not means 
+If either -WithTypeName and/or -WithMessage are set then -Not means 
 "Function should not throw an exception with the specified class name and/or message."  This 
 means the test will pass if no exception is thrown, or if an exception is thrown which does not 
 have the specified class name and/or message.
@@ -71,18 +74,17 @@ that contains the specified text.
 Test that a function taking no arguments throws an exception of a specified type
 
 { MyFunction } | 
-    Assert-ExceptionThrown -WithTypeName ArgumentException
+    Assert-ExceptionThrown -WithTypeName System.ArgumentException
 
-The test will only pass if MyFunction throws an ArgumentException.
+The test will only pass if MyFunction throws an System.ArgumentException.
 
 .EXAMPLE 
-Test that a function throws an exception with the type name specified in full
+Specify a short type name, without namespace, for the expected exception
 
 { MyFunction } | 
-    Assert-ExceptionThrown -WithTypeName System.ArgumentException `
-                            -UseFullTypeName
+    Assert-ExceptionThrown -WithTypeName ArgumentException
 
-The test will only pass if MyFunction throws a System.ArgumentException.
+The test will pass if MyFunction throws a System.ArgumentException.
 
 .EXAMPLE 
 Test that a function does not throw an exception
@@ -147,7 +149,7 @@ function Assert-ExceptionThrown
             $errorMessages = Private_GetExceptionError -Exception $_.Exception `
                 -WithTypeName $WithTypeName `
                 -WithMessage $WithMessage `
-                -UseFullTypeName:$UseFullTypeName -Not:$Not
+                -Not:$Not
                 
             if ($errorMessages.Count -gt 0)
             {
@@ -217,7 +219,6 @@ function Private_GetExceptionError
 
     [string]$WithTypeName,
     [string]$WithMessage, 
-    [switch]$UseFullTypeName, 
 
     [switch]$Not
 )
@@ -244,13 +245,44 @@ function Private_GetExceptionError
 
     if (-not [string]::IsNullOrWhiteSpace($WithTypeName))
     {
-        $actualExceptionTypeName = $Exception.GetType().Name
-        if ($UseFullTypeName)
+        $exceptionTypeMatched = $False
+        $actualExceptionTypeName = $Exception.GetType().FullName
+        
+        if ($actualExceptionTypeName.EndsWith($WithTypeName.Trim(), 
+                                                [StringComparison]::CurrentCultureIgnoreCase))
         {
-            $actualExceptionTypeName = $Exception.GetType().FullName
+            # Don't allow silliness like 
+            #   Assert-ExceptionThrown -WithTypeName 'stem.ArgumentException'
+            # or 
+            #   Assert-ExceptionThrown -WithTypeName 'tion'
+            # to pass.  Although namespaces can be left out of the expected type name, we don't 
+            # want truncated namespaces or truncated class names.
+
+            $actualTypeNameParts = $actualExceptionTypeName -split '.', 0, 'simplematch'
+            $expectedTypeNameParts = $WithTypeName.Trim() -split '.', 0, 'simplematch'
+            if ($actualTypeNameParts.Count -lt $expectedTypeNameParts.Count)
+            {
+                $exceptionTypeMatched = $False
+            }
+            else
+            {
+                # To handle leading parts of the namespace being missed from the expected type 
+                # name, compare the parts of the type name in reverse.
+                [array]::Reverse($actualTypeNameParts)
+                [array]::Reverse($expectedTypeNameParts)
+                
+                $exceptionTypeMatched = $True
+                for ($i = 0; $i -lt $expectedTypeNameParts.Count; $i++) 
+                {
+                    # -ine is case insensitive not equals.
+                    if ($actualTypeNameParts[$i] -ine $expectedTypeNameParts[$i])
+                    {
+                        $exceptionTypeMatched = $False
+                        break
+                    }
+                }
+            }
         }
-        # -ieq is case insensitive equals.
-        $exceptionTypeMatched = ($actualExceptionTypeName -ieq $WithTypeName.Trim())
         if ($Not -and $exceptionTypeMatched)
         {
             $errorMessages += `

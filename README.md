@@ -8,8 +8,8 @@ under development, parameters and functionality may change.  The module should s
 end of March 2018, or once this notice is removed.
 
 ## Introduction
-The PesterAssertExceptionThrown module exports a single function, **_Assert-ExceptionThrown_**.  This 
-can be used in place of the built-in Pester **_Should -Throw_** command, to test whether a function or 
+The AssertExceptionThrown module exports a single function, **_Assert-ExceptionThrown_**.  This can 
+be used in place of the built-in Pester **_Should -Throw_** command, to test whether a function or 
 command throws an exception.
 
 The weakness of _Should -Throw_ is that it can only test that an exception with a particular 
@@ -42,7 +42,7 @@ test, along with any arguments, in curly braces and pipe it to _Assert-Exception
 #### Test that a function taking two arguments throws an exception with a specified message
 ```
 { MyFunctionWithTwoArgs -Key 'some text' -Value 10 } | 
-	Assert-ExceptionThrown -ExpectedExceptionMessage 'Value was of type int32, expected string'
+    Assert-ExceptionThrown -WithMessage 'Value was of type int32, expected string'
 ```
 The name of the function under test is MyFunctionWithTwoArgs.  The test will only pass if 
 MyFunctionWithTwoArgs, with the specified arguments, throws an exception with a message 
@@ -51,21 +51,16 @@ that contains the specified text.
 #### Test that a function taking no arguments throws an exception of a specific type
 ```
 { MyFunction } | 
-	Assert-ExceptionThrown -ExpectedExceptionTypeName ArgumentException
+    Assert-ExceptionThrown -WithTypeName System.ArgumentException
 ```
-The test will only pass if MyFunction throws an ArgumentException.  By default 
-_Assert-ExceptionThrown_ expects exception type names to be specified as short names, without 
-namespaces.
+The test will only pass if MyFunction throws an System.ArgumentException.
 
-#### Test that a function throws an exception with the type name specified in full, including the namespace
+#### Specify a short type name, without namespace, for the expected exception
 ```
 { MyFunction } | 
-	Assert-ExceptionThrown -ExpectedExceptionTypeName System.ArgumentException `
-				-UseFullTypeName
+    Assert-ExceptionThrown -WithTypeName ArgumentException
 ```
-The test will only pass if MyFunction throws a System.ArgumentException.  If the -UseFullTypeName 
-switch is set _Assert-ExceptionThrown_ expects exception type names to be specified as full names, 
-including namespaces.
+The test will pass if MyFunction throws a System.ArgumentException.
 
 #### Test that a function does not throw an exception
 ```

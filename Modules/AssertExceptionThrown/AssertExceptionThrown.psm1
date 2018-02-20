@@ -8,11 +8,13 @@ only check the exception message, not the type of exception.  This function can 
 exception message and type.
 
 .NOTES
-File Name:	AssertExceptionThrown.psm1
-Author:		Simon Elms
-Copyright:	(c) 2018 Simon Elms
-Requires:	PowerShell 5 (may work on earlier versions but untested)
-			Pester 4 (may work on earlier versions but untested)
+File Name:		AssertExceptionThrown.ps1
+Author:			Simon Elms
+Copyright:		(c) 2018 Simon Elms
+Requires:		PowerShell 5 (may work on earlier versions but untested)
+				Pester 4 (may work on earlier versions but untested)
+Version:		0.8.0 
+Version Date:	20 Feb 2018
 
 Usage is similar to that for Pester "Should -Throw": Wrap the function under test, along with 
 any arguments, in curly braces and pipe it to Assert-ExceptionThrown.
@@ -63,7 +65,7 @@ have the specified class name and/or message.
 .EXAMPLE 
 Test that a function taking two arguments throws an exception with a specified message
 
-{ MyFunctionWithTwoArgs -Key MyKey -Value 10 } | 
+{ MyFunctionWithTwoArgs -Key 'header' -Value 10 } | 
     Assert-ExceptionThrown -WithMessage 'Value was of type int32, expected string'
 
 The name of the function under test is MyFunctionWithTwoArgs.  The test will only pass if 
@@ -89,7 +91,7 @@ The test will pass if MyFunction throws a System.ArgumentException.
 .EXAMPLE 
 Test that a function does not throw an exception
 
-{ MyFunctionWithTwoArgs -Key MyKey -Value MyValue } | 
+{ MyFunctionWithTwoArgs -Key 'header' -Value 'value' } | 
     Assert-ExceptionThrown -Not
 
 The test will pass only if MyFunctionWithTwoArgs, with the specified arguments, does not throw 
@@ -98,7 +100,7 @@ any exception.
 .EXAMPLE 
 Test that a function does not throw an exception with a specified message
 
-{ MyFunctionWithTwoArgs -Key MyKey -Value 10 } | 
+{ MyFunctionWithTwoArgs -Key 'header' -Value 10 } | 
     Assert-ExceptionThrown -Not -WithMessage 'Value was of type int32, expected string'
 
 The test will fail if MyFunctionWithTwoArgs, with the specified arguments, throws an exception 
@@ -111,8 +113,8 @@ Test that a function does not throw an exception of a specified type
 { MyFunction } | 
     Assert-ExceptionThrown -Not -WithTypeName ArgumentException
 
-The test will fail if MyFunction throws an ArgumentException.  It will pass if MyFunction does 
-not throw an exception, or if it throws an exception of a different type.
+The test will fail if MyFunction throws a System.ArgumentException.  It will pass if MyFunction 
+does not throw an exception, or if it throws an exception of a different type.
 
 .LINK
 https://github.com/AnotherSadGit/PesterAssertExceptionThrown

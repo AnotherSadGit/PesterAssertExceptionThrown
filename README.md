@@ -41,7 +41,7 @@ test, along with any arguments, in curly braces and pipe it to _Assert-Exception
 
 #### Test that a function taking two arguments throws an exception with a specified message
 ```
-{ MyFunctionWithTwoArgs -Key 'some text' -Value 10 } | 
+{ MyFunctionWithTwoArgs -Key 'header' -Value 10 } | 
     Assert-ExceptionThrown -WithMessage 'Value was of type int32, expected string'
 ```
 The name of the function under test is MyFunctionWithTwoArgs.  The test will only pass if 
@@ -64,16 +64,16 @@ The test will pass if MyFunction throws a System.ArgumentException.
 
 #### Test that a function does not throw an exception
 ```
-{ MyFunctionWithTwoArgs -Key 'some text' -Value 'a value' } | 
-	Assert-ExceptionThrown -Not
+{ MyFunctionWithTwoArgs -Key 'header' -Value 'value' } | 
+    Assert-ExceptionThrown -Not
 ```
 The test will pass only if MyFunctionWithTwoArgs, with the specified arguments, does not throw 
 any exception.
 
 #### Test that a function does not throw an exception with a specified message
 ```
-{ MyFunctionWithTwoArgs -Key 'some text' -Value 10 } | 
-	Assert-ExceptionThrown -Not -ExpectedExceptionMessage 'Value was of type int32, expected string'
+{ MyFunctionWithTwoArgs -Key 'header' -Value 10 } | 
+    Assert-ExceptionThrown -Not -WithMessage 'Value was of type int32, expected string'
 ```
 The test will fail if MyFunctionWithTwoArgs, with the specified arguments, throws an exception 
 with a message that contains the specified text.  It will pass if MyFunctionWithTwoArgs does not 
@@ -82,7 +82,7 @@ throw an exception, or if it throws an exception with a different message.
 #### Test that a function does not throw an exception of a specified type
 ```
 { MyFunction } | 
-	Assert-ExceptionThrown -Not -ExpectedExceptionTypeName ArgumentException
+    Assert-ExceptionThrown -Not -WithTypeName ArgumentException
 ```
-The test will fail if MyFunction throws an ArgumentException.  It will pass if MyFunction does 
-not throw an exception, or if it throws an exception of a different type.
+The test will fail if MyFunction throws a System.ArgumentException.  It will pass if MyFunction 
+does not throw an exception, or if it throws an exception of a different type.

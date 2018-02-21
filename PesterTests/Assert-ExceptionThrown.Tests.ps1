@@ -26,8 +26,8 @@ Get-Module AssertExceptionThrown | Remove-Module -Force
 #                   \                                                   |
 #                    ------------------> imports                     AssertExceptionThrown module folder
 #                                                \                      |
-#                                                 -----------------> AssertExceptionThrown.psm1 module script
-Import-Module (Join-Path $PSScriptRoot ..\Modules\AssertExceptionThrown\AssertExceptionThrown.psm1 -Resolve) -Force
+#                                                 -----------------> AssertExceptionThrown.psd1 module manifest
+Import-Module (Join-Path $PSScriptRoot ..\Modules\AssertExceptionThrown\AssertExceptionThrown.psd1 -Resolve) -Force
 
 <#
 .SYNOPSIS

@@ -86,3 +86,40 @@ throw an exception, or if it throws an exception with a different message.
 ```
 The test will fail if MyFunction throws a System.ArgumentException.  It will pass if MyFunction 
 does not throw an exception, or if it throws an exception of a different type.
+
+## Case Sensitivity
+As with most PowerShell functionality, _Assert-ExceptionThrown_ performs case insensitive 
+comparisons.  So expected exception messages and type names do not need to match the case of the 
+actual exception messages and type names.
+
+## -WithTypeName Behaviour
+_Assert-ExceptionThrown_ will compare the end of the thrown exception's type name to the type name 
+specified via the `-WithTypeName` parameter.  This means that namespaces do not need to be included 
+when specifying an expected exception type name.
+
+For example, if function MyFunction is expected to throw a System.ArgumentException then both of 
+the following will pass:
+
+```
+{ MyFunction } | 
+    Assert-ExceptionThrown -WithTypeName System.ArgumentException
+```
+```
+{ MyFunction } | 
+    Assert-ExceptionThrown -WithTypeName ArgumentException
+```
+
+_Assert-ExceptionThrown_ does expect whole "words" to be used when specifying a type name, 
+however.  For example, the following will fail:
+
+```
+{ MyFunction } | 
+    Assert-ExceptionThrown -WithTypeName stem.ArgumentException
+```
+This fails because "System" was truncated to "stem".
+
+```
+{ MyFunction } | 
+    Assert-ExceptionThrown -WithTypeName xception
+```
+This fails because "ArgumentException" has been truncated to "xception".

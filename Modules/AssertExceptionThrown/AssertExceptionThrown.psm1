@@ -8,13 +8,11 @@ only check the exception message, not the type of exception.  This function can 
 exception message and type.
 
 .NOTES
-File Name:		AssertExceptionThrown.ps1
-Author:			Simon Elms
 Copyright:		(c) 2018 Simon Elms
 Requires:		PowerShell 5 (may work on earlier versions but untested)
 				Pester 4 (may work on earlier versions but untested)
-Version:		0.8.0 
-Version Date:	20 Feb 2018
+Version:		1.0.0 
+Date:			22 Feb 2018
 
 Usage is similar to that for Pester "Should -Throw": Wrap the function under test, along with 
 any arguments, in curly braces and pipe it to Assert-ExceptionThrown.
@@ -26,9 +24,9 @@ scriptblock.
 .PARAMETER WithTypeName
 The type name of the exception that is expected to be thrown by the function under test.  
 
-The test passes if the specified -WithTypeName matches the end of the full type name of the 
-exception that is thrown.  This allows leading namespaces to be left out of the expected type 
-name.  
+The test passes if the type name specified via -WithTypeName matches the end of the full type 
+name of the exception that is thrown.  This allows leading namespaces to be left out of the 
+expected type name.  
 
 So, for example, if the function under test throws a 
 System.Management.Automation.ActionPreferenceStopException, 
@@ -42,7 +40,10 @@ The test will fail if truncated namespaces or class names are specified.  For ex
 following will fail:
     -WithTypeName 'mation.ActionPreferenceStopException' (truncated namespace 'Automation')
     -WithTypeName 'System.Management.Automation.ActionPref' (truncated class name 
-                                                            'ActionPreferenceStopException').
+                                                            'ActionPreferenceStopException')
+    -WithTypeName 'StopException' (truncated class name 'ActionPreferenceStopException')
+
+The comparison between the expected and actual exception type names is case insensitive.
 
 .PARAMETER WithMessage
 All or part of the exception message that is expected when the function under test is run. 
@@ -51,7 +52,7 @@ The test is effectively "Actual exception message must contain WithMessage".  Th
 comparison between the expected and actual exception messages is case insensitive.
 
 .PARAMETER Not
-A switch parameter that inverts the test when set.  
+A switch parameter that inverts the test.  
 
 The effect of the -Not parameter depends on whether -WithTypeName or 
 -WithMessage are set.  If neither -WithTypeName nor 

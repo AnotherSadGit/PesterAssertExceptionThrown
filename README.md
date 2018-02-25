@@ -2,11 +2,6 @@
 A PowerShell module that can be used in Pester tests to assert that a function throws a specific 
 exception.
 
-## NOTE: THIS MODULE IS STILL UNDER DEVELOPMENT; BREAKING CHANGES MAY BE EXPECTED
-The _Assert-ExceptionThrown_ function is fully tested and is working.  However, as it is still 
-under development, parameters and functionality may change.  The module should stabilize by the 
-end of March 2018, or once this notice is removed.
-
 ## Introduction
 The AssertExceptionThrown module exports a single function, **_Assert-ExceptionThrown_**.  This can 
 be used in place of the built-in Pester **_Should -Throw_** command, to test whether a function or 
@@ -21,8 +16,9 @@ or with a particular message.
 Like _Should -Throw_, _Assert-ExceptionThrown_ will throw an exception if a test fails.
 
 ## Getting Started
-Open the Modules folder and copy the AssertExceptionThrown sub-folder, with its contents, to one 
-of the locations that PowerShell recognises for modules.  The two default locations are:
+Open the PesterAssertExceptionThrown Modules folder and copy the AssertExceptionThrown sub-folder, 
+with its contents, to one of the locations that PowerShell recognises for modules.  The two 
+default locations are:
 
 1. For all users:  **%ProgramFiles%\WindowsPowerShell\Modules** 
 (usually resolves to C:\Program Files\WindowsPowerShell\Modules);

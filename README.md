@@ -2,6 +2,8 @@
 A PowerShell module that can be used in Pester tests to assert that a function throws a specific 
 exception.
 
+### master branch build status: [![Build status](https://ci.appveyor.com/api/projects/status/1wxq7ixolrormvvk/branch/master?svg=true)](https://ci.appveyor.com/project/AnotherSadGit/pesterassertexceptionthrown/branch/master)
+
 ## Introduction
 The AssertExceptionThrown module exports a single function, **_Assert-ExceptionThrown_**.  This can 
 be used in place of the built-in Pester **_Should -Throw_** command, to test whether a function or 

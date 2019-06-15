@@ -1,4 +1,4 @@
-# PesterAssertExceptionThrown
+# AssertExceptionThrown
 A PowerShell module that can be used in Pester tests to assert that a function throws a specific 
 exception.
 
@@ -18,15 +18,53 @@ or with a particular message.
 Like _Should -Throw_, _Assert-ExceptionThrown_ will throw an exception if a test fails.
 
 ## Getting Started
-Open the PesterAssertExceptionThrown Modules folder and copy the AssertExceptionThrown sub-folder, 
-with its contents, to one of the locations that PowerShell recognises for modules.  The two 
-default locations are:
+There are two ways of installing the AssertExceptionThrown module:  from the PowerShell Gallery via PowerShellGet 
+or Manually:
+
+### Installing from the PowerShell Gallery via PowerShellGet
+You will need to run the following commands in a console or terminal with **Administrator privileges**.
+
+##### If you have direct access to the internet:
+```
+install-module -Name AssertExceptionThrown -Repository 'PSGallery'
+```
+**NOTE:** If you get an error message similar to:<br/>
+*WARNING: Source Location 'https://www.powershellgallery.com/api/v2/package/AssertExceptionThrown/1.0.0' is not valid. 
+PackageManagement\Install-Package : Package 'AssertExceptionThrown' failed to download.*<br/>
+then you are probably behind a proxy server.  See how to install the module from behind a proxy, below.
+
+##### If you're behind a proxy server:
+```
+$proxyCredential = Get-Credential -Message 'Please enter credentials for proxy server'                        
+install-module -Name AssertExceptionThrown -Repository 'PSGallery' `
+    -Proxy 'http://...:8080' -ProxyCredential $proxyCredential
+```
+(replace the 'http://...:8080' with the correct URL for your proxy server)
+
+##### To check if the module is installed:
+```
+get-installedmodule -Name AssertExceptionThrown
+```
+
+**NOTE:** You may get an error message along the lines of:<br/>
+*"PowerShellGet requires NuGet provider version '2.8.5.201' or newer to interact with NuGet-based repositories."*<br/>
+See the following document from Microsoft to resolve this issue:<br/>
+*"Bootstrap the NuGet provider and NuGet.exe"*<br/>
+at https://docs.microsoft.com/en-us/powershell/gallery/how-to/getting-support/bootstrapping-nuget
+
+### Installing Manually
+Copy the PesterAssertExceptionThrown > Modules > AssertExceptionThrown folder, with its contents, 
+to one of the locations that PowerShell recognizes for modules.  The two default locations are:
 
 1. For all users:  **%ProgramFiles%\WindowsPowerShell\Modules** 
 (usually resolves to C:\Program Files\WindowsPowerShell\Modules);
 
 2. For the current user only:  **%UserProfile%\Documents\WindowsPowerShell\Modules** 
 (usually resolves to C:\Users\\{user name}\Documents\WindowsPowerShell\Modules)
+
+If the PowerShell console or the PowerShell ISE is open when you copy the AssertExceptionThrown 
+folder to a recognized module location you may need to close and reopen the console or ISE for it 
+to recognize the new AssertExceptionThrown module.
 
 Once the AssertExceptionThrown folder has been saved to a recognised Module location you should 
 be able to call the _Assert-ExceptionThrown_ function without explicitly importing the module.

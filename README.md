@@ -25,7 +25,7 @@ or Manually:
 You will need to run the following commands in a console or terminal with **Administrator privileges**.
 
 ##### If you have direct access to the internet:
-```
+```powershell
 install-module -Name AssertExceptionThrown -Repository 'PSGallery'
 ```
 **NOTE:** If you get an error message similar to:<br/>
@@ -34,15 +34,15 @@ PackageManagement\Install-Package : Package 'AssertExceptionThrown' failed to do
 then you are probably behind a proxy server.  See how to install the module from behind a proxy, below.
 
 ##### If you're behind a proxy server:
-```
+```powershell
 $proxyCredential = Get-Credential -Message 'Please enter credentials for proxy server'                        
 install-module -Name AssertExceptionThrown -Repository 'PSGallery' `
-    -Proxy 'http://...:8080' -ProxyCredential $proxyCredential
+    -Proxy 'http://...' -ProxyCredential $proxyCredential
 ```
-(replace the 'http://...:8080' with the correct URL for your proxy server)
+(replace the 'http://...' with the correct URL for your proxy server)
 
 ##### To check if the module is installed:
-```
+```powershell
 get-installedmodule -Name AssertExceptionThrown
 ```
 
@@ -76,7 +76,7 @@ test, along with any arguments, in curly braces and pipe it to _Assert-Exception
 ### Examples
 
 #### Test that a function taking two arguments throws an exception with a specified message
-```
+```powershell
 { MyFunctionWithTwoArgs -Key 'header' -Value 10 } | 
     Assert-ExceptionThrown -WithMessage 'Value was of type int32, expected string'
 ```
@@ -85,21 +85,21 @@ MyFunctionWithTwoArgs, with the specified arguments, throws an exception with a 
 that contains the specified text.
 
 #### Test that a function taking no arguments throws an exception of a specific type
-```
+```powershell
 { MyFunction } | 
     Assert-ExceptionThrown -WithTypeName System.ArgumentException
 ```
 The test will only pass if MyFunction throws an System.ArgumentException.
 
 #### Specify a short type name, without namespace, for the expected exception
-```
+```powershell
 { MyFunction } | 
     Assert-ExceptionThrown -WithTypeName ArgumentException
 ```
 The test will pass if MyFunction throws a System.ArgumentException.
 
 #### Test that a function does not throw an exception
-```
+```powershell
 { MyFunctionWithTwoArgs -Key 'header' -Value 'value' } | 
     Assert-ExceptionThrown -Not
 ```
@@ -107,7 +107,7 @@ The test will pass only if MyFunctionWithTwoArgs, with the specified arguments, 
 any exception.
 
 #### Test that a function does not throw an exception with a specified message
-```
+```powershell
 { MyFunctionWithTwoArgs -Key 'header' -Value 10 } | 
     Assert-ExceptionThrown -Not -WithMessage 'Value was of type int32, expected string'
 ```
@@ -116,7 +116,7 @@ with a message that contains the specified text.  It will pass if MyFunctionWith
 throw an exception, or if it throws an exception with a different message.
 
 #### Test that a function does not throw an exception of a specified type
-```
+```powershell
 { MyFunction } | 
     Assert-ExceptionThrown -Not -WithTypeName ArgumentException
 ```
@@ -136,11 +136,11 @@ when specifying an expected exception type name.
 For example, if function MyFunction is expected to throw a System.ArgumentException then both of 
 the following will pass:
 
-```
+```powershell
 { MyFunction } | 
     Assert-ExceptionThrown -WithTypeName System.ArgumentException
 ```
-```
+```powershell
 { MyFunction } | 
     Assert-ExceptionThrown -WithTypeName ArgumentException
 ```
@@ -148,13 +148,13 @@ the following will pass:
 _Assert-ExceptionThrown_ does expect whole "words" to be used when specifying a type name, 
 however.  For example, the following will fail:
 
-```
+```powershell
 { MyFunction } | 
     Assert-ExceptionThrown -WithTypeName stem.ArgumentException
 ```
 This fails because "System" was truncated to "stem".
 
-```
+```powershell
 { MyFunction } | 
     Assert-ExceptionThrown -WithTypeName xception
 ```
